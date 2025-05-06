@@ -30,7 +30,7 @@ class Gender(Enum):
 class Heat(Enum):
     Off = 0
     VeryLow = 1
-    Low = 1
+    Low = 2
 
 
 class Height(Enum):
@@ -184,7 +184,7 @@ def switch_height(height_str: str, gender_str: str):
 
     send_udp_message(bytes([MessageType.SWITCH_HEIGHT.value, height.value]))
     return json.dumps(
-        {"success": True, "message": f"Height switched to '{height.name}' successfully"}
+        {"success": True, "message": f"Height switched to '{height_str}' successfully"}
     )
 
 
@@ -204,12 +204,12 @@ def switch_loading_heat(heat_str: str):
     """Switches the loading_heat of the current user
 
     Args:
-        heat_str (str): The loading_heat to switch to, either Off, VeryLow, or Low
+        heat_str (str): The loading_heat to switch to, either Off, Lowest, or Low
     """
     match heat_str.lower():
         case "off":
             heat = Heat.Off
-        case "verylow":
+        case "lowest":
             heat = Heat.VeryLow
         case "low":
             heat = Heat.Low
