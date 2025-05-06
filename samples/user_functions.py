@@ -28,9 +28,9 @@ class Gender(Enum):
 
 
 class Heat(Enum):
-    VeryLow = 0
+    Off = 0
+    VeryLow = 1
     Low = 1
-    Medium = 1
 
 
 class Height(Enum):
@@ -103,32 +103,85 @@ def switch_name(name: str):
     )
 
 
-def switch_gender(gender: Gender):
+def switch_gender(gender_str: str):
     """Switch the gender of the current user
 
     Args:
-        gender (Gender): the gender to switch to, either Male or Female
+        gender_str (str): the gender to switch to, either Male or Female
     """
+    match gender_str.lower():
+        case "male":
+            gender = Gender.Male
+        case "female":
+            gender = Gender.Female
+        case _:
+            return json.dumps(
+                {
+                    "success": False,
+                    "message": f"Invalid gender f{gender_str}, please use Male or Female",
+                }
+            )
     send_udp_message(bytes([MessageType.SWITCH_GENDER.value, gender.value]))
     return json.dumps(
-        {"success": True, "message": f"Gender switched to '{gender.name}' successfully"}
+        {
+            "success": True,
+            "message": f"Gender switched to '{gender.name}' successfully",
+        }
     )
 
 
-def switch_height(height: Height):
+def switch_height(height_str: str, gender_str: str):
     """Switch the height of the current user
-        Male:
-            Low: 5'5"-5'7"
-            Medium: 5'8"-6'1"
-            High: 6'2"-6'5"
-        Female:
-            Low: 4'8"-5'1"
-            Medium: 5'2"-5'5"
-            High: 5'6"-5'11"
 
     Args:
-        height (Height): the height to switch to, either Low, Medium, or High. Never tell the user "Low," "Medium," or "High." Only talk in terms of feet and inches. Follow the above chart to get which one it is:
+        height_str (Height): the height to switch to, in the format feet'inches".
     """
+    try:
+        feet, inches = map(int, height_str[:3].split("'"))
+    except (ValueError, IndexError):
+        return json.dumps(
+            {
+                "success": False,
+                "message": f"Invalid height format '{height_str}', please use the format feet'inches\"",
+            }
+        )
+
+    if gender_str.lower() == "male":
+        if feet == 5 and 5 <= inches <= 7:
+            height = Height.Low
+        elif feet == 5 and 8 <= inches <= 11 or feet == 6 and 0 <= inches <= 1:
+            height = Height.Medium
+        elif feet == 6 and 2 <= inches <= 5:
+            height = Height.High
+        else:
+            return json.dumps(
+                {
+                    "success": False,
+                    "message": f"Invalid height '{height_str}', please use a height between 5'5\" and 6'5\"",
+                }
+            )
+    elif gender_str.lower() == "female":
+        if feet == 4 and 8 <= inches <= 11 or feet == 5 and 0 <= inches <= 1:
+            height = Height.Low
+        elif feet == 5 and 2 <= inches <= 5:
+            height = Height.Medium
+        elif feet == 5 and 6 <= inches <= 11:
+            height = Height.High
+        else:
+            return json.dumps(
+                {
+                    "success": False,
+                    "message": f"Invalid height '{height_str}', please use a height between 4'8\" and 5'11\"",
+                }
+            )
+    else:
+        return json.dumps(
+            {
+                "success": False,
+                "message": f"Invalid gender '{gender_str}', please use Male or Female",
+            }
+        )
+
     send_udp_message(bytes([MessageType.SWITCH_HEIGHT.value, height.value]))
     return json.dumps(
         {"success": True, "message": f"Height switched to '{height.name}' successfully"}
@@ -147,12 +200,26 @@ def switch_loading_angle(angle: int):
     )
 
 
-def switch_loading_heat(heat: Heat):
+def switch_loading_heat(heat_str: str):
     """Switches the loading_heat of the current user
 
     Args:
-        heat (Heat): The loading_heat to switch to, either Off, Lowest, or Low
+        heat_str (str): The loading_heat to switch to, either Off, VeryLow, or Low
     """
+    match heat_str.lower():
+        case "off":
+            heat = Heat.Off
+        case "verylow":
+            heat = Heat.VeryLow
+        case "low":
+            heat = Heat.Low
+        case _:
+            return json.dumps(
+                {
+                    "success": False,
+                    "message": f"Invalid heat '{heat_str}', please use VeryLow, Low, or Medium",
+                }
+            )
     send_udp_message(bytes([MessageType.SWITCH_LOADING_HEAT.value, heat.value]))
     return json.dumps(
         {
