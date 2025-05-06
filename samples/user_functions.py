@@ -229,13 +229,31 @@ def switch_loading_heat(heat_str: str):
     )
 
 
-def switch_traction_adjust(index: int, value: int):
+def switch_traction_adjust(unit_name: str, value: int):
     """Switches the traction_adjust of the current user
 
     Args:
-        index (int): The index of the traction unit to adjust
-        value (int): The value in mm to adjust the traciton unit to
+        unit_name (str): The name of the traction unit to adjust
+        value (int): The value in mm to adjust the traciton unit to, should be Shoulder, Neck, Back, Knee Height, or Lower Back
     """
+    match unit_name.lower():
+        case "shoulder":
+            index = 0
+        case "neck":
+            index = 1
+        case "back":
+            index = 2
+        case "knee height":
+            index = 3
+        case "lower back":
+            index = 4
+        case _:
+            return json.dumps(
+                {
+                    "success": False,
+                    "message": f"Invalid traction unit '{unit_name}', please use Shoulder, Neck, Back, Knee Height, or Lower Back",
+                }
+            )
     send_udp_message(bytes([MessageType.SWITCH_TRACTION_ADJUST.value, index, value]))
     return json.dumps(
         {
