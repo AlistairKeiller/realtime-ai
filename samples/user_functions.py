@@ -254,7 +254,10 @@ def switch_traction_adjust(unit_name: str, value: int):
                     "message": f"Invalid traction unit '{unit_name}', please use Shoulder, Neck, Back, Knee Height, or Lower Back",
                 }
             )
-    send_udp_message(bytes([MessageType.SWITCH_TRACTION_ADJUST.value, index, value]))
+    send_udp_message(
+        bytes([MessageType.SWITCH_TRACTION_ADJUST.value, index])
+        + value.to_bytes(4, byteorder="little", signed=True)
+    )
     return json.dumps(
         {
             "success": True,
