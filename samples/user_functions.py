@@ -234,24 +234,24 @@ def switch_traction_adjust(unit_name: str, value: int):
 
     Args:
         unit_name (str): The name of the traction unit to adjust
-        value (int): The value in mm to adjust the traciton unit to, should be Shoulder, Neck, Back, Knee Height, or Lower Back
+        value (int): The value in mm to adjust the traciton unit to, should be Cephalad, Cervical, Caudal, Thoracic, or Lumbar
     """
     match unit_name.lower():
-        case "shoulder":
+        case "cephalad":
             index = 0
-        case "neck":
+        case "cervical":
             index = 1
-        case "back":
+        case "caudal":
             index = 2
-        case "knee height":
+        case "thoracic":
             index = 3
-        case "lower back":
+        case "lumbar":
             index = 4
         case _:
             return json.dumps(
                 {
                     "success": False,
-                    "message": f"Invalid traction unit '{unit_name}', please use Shoulder, Neck, Back, Knee Height, or Lower Back",
+                    "message": f"Invalid traction unit '{unit_name}', please use Cephalad, Cervical, Caudal, Thoracic, or Lumbar",
                 }
             )
     send_udp_message(
